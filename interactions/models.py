@@ -1,8 +1,7 @@
 from django.db import models
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericRelation
-from verfications.models import Verfication
-
+from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 class Verification(models.Model):
     VERIFICATION_TYPES = (("basic_web", "Basic web"), ("local_web", "Local web"), ("eye_witness", "Eye witness"))
@@ -11,7 +10,7 @@ class Verification(models.Model):
     content_type =  models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 class Reaction(models.Model):
     REACTION_TYPES = (("peace", "peace"), ("love", "love"), ("shock", "shock"), ("laugh", "laugh"), ("joy", "joy"))
@@ -19,7 +18,7 @@ class Reaction(models.Model):
 class Comment(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content_type =  models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
@@ -33,8 +32,8 @@ class NatureStatus(models.Model):
     status = models.CharField(max_length=100, choices=STATUS_TYPES)
     message = models.TextField(blank=True, null=True)
     access_note = models.TextField(blank=True, null=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
-    verifications = GenericRelation(Verifications)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    verifications = GenericRelation(Verification)
     loc_lat = models.FloatField(blank=True, null=True)
     loc_lon = models.FloatField(blank=True, null=True)
     image = models.ImageField(upload_to="evidence")
@@ -48,8 +47,8 @@ class CleanUp(models.Model):
     completion_date = models.DateTimeField(blank=True, null=True)
     status = models.CharField(max_length=100, choices=STATUS_TYPES)
     message = models.TextField(blank=True, null=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL)
-    verifications = GenericRelation(Verifications)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    verifications = GenericRelation(Verification)
     comments = GenericRelation(Comment)
 
 class CleanUpContributor(models.Model):
